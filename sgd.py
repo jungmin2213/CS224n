@@ -10,25 +10,13 @@ import numpy as np
 import os.path as op
 
 def load_saved_params():
-    """
-    A helper function that loads previously saved parameters and resets
-    iteration start.
-    """
-    st = 0
-    for f in glob.glob("saved_params_*.npy"):
-        iter = int(op.splitext(op.basename(f))[0].split("_")[2])
-        if (iter > st):
-            st = iter
-
-    if st > 0:
-        params_file = "saved_params_%d.npy" % st
-        state_file = "saved_state_%d.pickle" % st
-        params = np.load(params_file)
-        with open(state_file, "rb") as f:
-            state = pickle.load(f)
-        return st, params, state
-    else:
-        return st, None, None
+    try:
+        with open("saved_params.pkl", "rb") as f:
+            start_iter, oldx, state = pickle.load(f)
+    except (FileNotFoundError, EOFError):
+        # Handle the case where the file doesn't exist or is empty
+        start_iter, oldx, state = 0, None, None
+    return start_iter, oldx, state
 
 
 def save_params(iter, params):
